@@ -85,12 +85,8 @@
 #endif
 
 #ifdef _WIN32
-  static LARGE_INTEGER countsPerSecond; 
   static double getCurrentTime() {
-    LARGE_INTEGER count;
-    if (countsPerSecond.QuadPart == 0) QueryPerformanceFrequency(&countsPerSecond);
-    QueryPerformanceCounter(&count);
-    return double(count.QuadPart)/countsPerSecond.QuadPart;
+    return 0.;
   }
 #else
   #include <time.h>
