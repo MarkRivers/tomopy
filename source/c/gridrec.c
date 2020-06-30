@@ -50,6 +50,10 @@
 // Use X/Open-7, where posix_memalign is introduced
 #define _XOPEN_SOURCE 700
 
+#ifdef _WIN32
+  #include <windows.h>
+#endif
+
 #include "gridrec.h"
 #include "mkl.h"
 #include <stdio.h>
@@ -80,11 +84,23 @@
 #    define __ASSSUME_64BYTES_ALIGNED(x)
 #endif
 
-static double getCurrentTime() {
+#ifdef _WIN32
+  static LARGE_INTEGER countsPerSecond; 
+  static double getCurrentTime() {
+    LARGE_INTEGER count;
+    if (countsPerSecond.QuadPart == 0) QueryPerformanceFrequency(&countsPerSecond);
+    QueryPerformanceCounter(&count);
+    return double(count.QuadPart)/countsPerSecond.QuadPart;
+  }
+#else
+  #include <time.h>
+  static double getCurrentTime() {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     return ts.tv_sec + ts.tv_nsec/1e9;
-}
+  }
+#endif
+
 
 void
 gridrec(const float* data, int dy, int dt, int dx, const float* center,
