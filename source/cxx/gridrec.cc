@@ -93,6 +93,8 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     std::complex<float>**U_d, **V_d;
     float *              J_z, *P_z;
 
+    double t1, t2, t3, t4;
+
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
                               0.1372983E-01,  -0.7963169E-03, 0.3593372E-04,
@@ -178,6 +180,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
+        t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
                               filter2d);
@@ -313,6 +316,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 }
             }
         }
+        t2 = getCurrentTime();
 
         // Carry out a 2D inverse FFT on the array H.
 
@@ -326,6 +330,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
 
         DftiComputeForward(forward_2d, H[0]);
 
+        t3 = getCurrentTime();
         // Copy the real and imaginary parts of the complex data from H[][],
         // into the output buffers for the two reconstructed real images,
         // simultaneously carrying out a final multiplicative correction.
@@ -407,6 +412,11 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 ufin   = ngridy - offsety;
             }
         }
+        t4 = getCurrentTime();
+        printf("Time for Phase 1: %f\n"
+               "Time for Phase 2: %f\n"
+               "Time for Phase 3: %f\n"
+               "      Total time: %f\n", t2-t1, t3-t2, t4-t3, t4-t1);
     }
 
     cxx_free_vector_f(sine);
