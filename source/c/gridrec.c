@@ -52,6 +52,8 @@
 
 #include "gridrec.h"
 #include "mkl.h"
+#include <stdio.h>
+#include <time.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -77,6 +79,12 @@
 #    define __PRAGMA_IVDEP
 #    define __ASSSUME_64BYTES_ALIGNED(x)
 #endif
+
+static double getCurrentTime() {
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return ts.tv_sec + ts.tv_nsec/1e9;
+}
 
 void
 gridrec(const float* data, int dy, int dt, int dx, const float* center,
@@ -106,6 +114,8 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
     float _Complex *   sino, *filphase, *filphase_iter = NULL, **H;
     float _Complex **  U_d, **V_d;
     float *            J_z, *P_z;
+    
+    double t1, t2, t3, t4;
 
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
@@ -192,6 +202,7 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
+        t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase, filter2d);
 
@@ -324,6 +335,7 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 }
             }
         }
+        t2 = getCurrentTime();
 
         // Carry out a 2D inverse FFT on the array H.
 
@@ -337,6 +349,7 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
 
         DftiComputeForward(forward_2d, H[0]);
 
+        t3 = getCurrentTime();
         // Copy the real and imaginary parts of the complex data from H[][],
         // into the output buffers for the two reconstructed real images,
         // simultaneously carrying out a final multiplicative correction.
@@ -418,7 +431,12 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 ufin   = ngridy - offsety;
             }
         }
-    }
+        t4 = getCurrentTime();
+        printf("Time for Phase 1: %f\n"
+               "Time for Phase 2: %f\n"
+               "Time for Phase 3: %f\n"
+               "      Total time: %f\n", t2-t1, t3-t2, t4-t3, t4-t1);
+   }
 
     free_vector_f(sine);
     free_vector_f(cose);
