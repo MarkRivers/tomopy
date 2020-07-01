@@ -422,11 +422,11 @@ gridrec(const float* data, int dy, int dt, int dx, const float* center,
                     for(iv = vstart; iv < vfin; k++, iv++)
                     {
                         const float corrn = corrn_u * winv[k + padx];
-                        recon[islc1 + ngridy * (ngridx - 1 - k) + j] =
+                        recon[islc1 + ngridy * (ngridx - 1 - j) + k] =
                             corrn * crealf(H[iu][iv]);
                         if(__LIKELY((s + 1) < dy))
                         {
-                            recon[islc2 + ngridy * (ngridx - 1 - k) + j] =
+                            recon[islc2 + ngridy * (ngridx - 1 - j) + k] =
                                 corrn * cimagf(H[iu][iv]);
                         }
                     }
