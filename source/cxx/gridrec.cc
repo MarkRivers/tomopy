@@ -201,7 +201,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
-        t12 = t13 = t14 = t141 = t142 = 0.;
+        t12 = t13 = t14 = t141 = t142 = t143 = 0.;
         t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
