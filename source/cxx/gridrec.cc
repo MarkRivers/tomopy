@@ -329,7 +329,6 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 }
 
                 __PRAGMA_SIMD_VECREMAINDER_VECLEN8
-                tz = getCurrentTime();
                 for(iu = iul, k = 0; iu <= iuh; iu++, k++)
                 {
                     work2[k] = wtbl[(int) roundf(fabsf(U - iu) * tblspcg)];
