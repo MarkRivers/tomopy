@@ -114,7 +114,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     std::complex<float>**U_d, **V_d;
     float *              J_z, *P_z;
 
-    double t1, t2, t3, t4;
+    double t1, t11, t12, t13, t14, tx, ty, t2, t3, t4;
 
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
@@ -201,6 +201,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
+        t12 = t13 = t14 = 0.;
         t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
@@ -257,11 +258,13 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
         std::complex<float> Cdata1, Cdata2;
 
         // For each projection
+        t11 = getCurrentTime();
         for(p = 0; p < dt; p++)
         {
             float              sine_p = sine[p], cose_p = cose[p];
             const unsigned int j0 = dx * (p + s * dt), delta_index = dx * dt;
 
+            tx = getCurrentTime();
             __PRAGMA_SIMD_VECREMAINDER
             for(j = 0; j < dx; j++)
             {
@@ -282,7 +285,11 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 sino[j] = 0.0;
             }
 
+            ty = getCurrentTime();
+            t12 += ty-tx;
             DftiComputeBackward(reverse_1d, sino);
+            tx = getCurrentTime();
+            t13 += tx-ty;
 
             if(filter2d)
                 filphase_iter = filphase + pdim2 * p;
@@ -336,6 +343,8 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                     }
                 }
             }
+            ty = getCurrentTime();
+            t14 += ty-tx;
         }
         t2 = getCurrentTime();
 
@@ -435,9 +444,13 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
         }
         t4 = getCurrentTime();
         printf("Time for Phase 1: %f\n"
+               "Time for Phase 1_1: %f\n"
+               "Time for Phase 1_2: %f\n"
+               "Time for Phase 1_3: %f\n"
+               "Time for Phase 1_4: %f\n"
                "Time for Phase 2: %f\n"
                "Time for Phase 3: %f\n"
-               "      Total time: %f\n", t2-t1, t3-t2, t4-t3, t4-t1);
+               "      Total time: %f\n", t2-t1, t11-t1, t12, t13, t14, t3-t2, t4-t3, t4-t1);
     }
 
     cxx_free_vector_f(sine);
