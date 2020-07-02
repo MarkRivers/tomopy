@@ -114,7 +114,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     std::complex<float>**U_d, **V_d;
     float *              J_z, *P_z;
 
-    double t1, t11, t12, t13, t14, t141, t142, tx, ty, tz, t2, t3, t4;
+    double t1, t11, t12, t13, t14, t141, t142, t143, tx, ty, tz, t2, t3, t4;
 
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
