@@ -114,7 +114,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     std::complex<float>**U_d, **V_d;
     float *              J_z, *P_z;
 
-    double t1, t11, t12, t13, t14, tx, ty, t2, t3, t4;
+    double t1, t11, t12, t13, t14, t15, tx, ty, tz, t2, t3, t4;
 
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
@@ -201,7 +201,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
-        t12 = t13 = t14 = 0.;
+        t12 = t13 = t14 = t15 = 0.;
         t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
@@ -332,6 +332,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 }
 
                 __PRAGMA_OMP_SIMD_COLLAPSE
+                tz = getCurrentTime();
                 for(iu = iul, k2 = 0; iu <= iuh; iu++, k2++)
                 {
                     for(iv = ivl, k = 0; iv <= ivh; iv++, k++)
@@ -342,6 +343,8 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                         H[pdim - iu][pdim - iv] += convolv * Cdata2;
                     }
                 }
+                t15 += getCurrentTime() - tz;
+                
             }
             ty = getCurrentTime();
             t14 += ty-tx;
@@ -448,9 +451,10 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                "Time for Phase 1_2: %f\n"
                "Time for Phase 1_3: %f\n"
                "Time for Phase 1_4: %f\n"
+               "Time for Phase 1_5: %f\n"
                "Time for Phase 2: %f\n"
                "Time for Phase 3: %f\n"
-               "      Total time: %f\n", t2-t1, t11-t1, t12, t13, t14, t3-t2, t4-t3, t4-t1);
+               "      Total time: %f\n", t2-t1, t11-t1, t12, t13, t14, t15, t3-t2, t4-t3, t4-t1);
     }
 
     cxx_free_vector_f(sine);
