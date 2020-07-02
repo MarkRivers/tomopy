@@ -114,7 +114,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     std::complex<float>**U_d, **V_d;
     float *              J_z, *P_z;
 
-    double t1, t11, t12, t13, t14, t141, t142, t143, tx, ty, tz, t2, t3, t4;
+    double t1, t11, t12, t13, t14, t141, t142, tx, ty, tz, t2, t3, t4;
 
     const float coefs[11] = { 0.5767616E+02,  -0.8931343E+02, 0.4167596E+02,
                               -0.1053599E+02, 0.1662374E+01,  -0.1780527E-00,
@@ -201,7 +201,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
-        t12 = t13 = t14 = t141 = t142 = t143 = 0.;
+        t12 = t13 = t14 = t141 = t142 = 0.;
         t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
@@ -288,15 +288,16 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
             ty = getCurrentTime();
             t12 += ty-tx;
             DftiComputeBackward(reverse_1d, sino);
-            tx = getCurrentTime();
-            t13 += tx-ty;
 
             if(filter2d)
                 filphase_iter = filphase + pdim2 * p;
 
+            tx = getCurrentTime();
+            t13 += tx-ty;
             // For each FFT(projection)
             for(j = 1; j < pdim2; j++)
             {
+                tz = getCurrentTime();
                 Cdata1 = filphase_iter[j] * sino[j];
                 Cdata2 = std::conj<float>(filphase_iter[j]) * sino[pdim - j];
 
@@ -317,6 +318,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                     ivl = 1;
                 if(ivh >= pdim)
                     ivh = pdim - 1;
+                t141 += getCurrentTime() - tz;
 
                 // Note aliasing value (at index=0) is forced to zero.
                 __PRAGMA_SIMD_VECREMAINDER_VECLEN8
@@ -325,7 +327,6 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                 {
                     work[k] = wtbl[(int) roundf(fabsf(V - iv) * tblspcg)];
                 }
-                t141 += getCurrentTime() - tz;
 
                 __PRAGMA_SIMD_VECREMAINDER_VECLEN8
                 tz = getCurrentTime();
