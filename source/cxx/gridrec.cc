@@ -201,7 +201,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
     // For each slice.
     for(s = 0; s < dy; s += 2)
     {
-        t12 = t13 = t14 = t1141 = t142 = t143 = 0.;
+        t12 = t13 = t14 = t141 = t142 = t143 = 0.;
         t1 = getCurrentTime();
         // Set up table of combined filter-phase factors.
         cxx_set_filter_tables(dt, pdim, center[s], filter, filter_par, filphase,
@@ -460,7 +460,7 @@ cxx_gridrec(const float* data, int dy, int dt, int dx, const float* center,
                "Time for Phase 1_4_3: %f\n"
                "Time for Phase 2: %f\n"
                "Time for Phase 3: %f\n"
-               "      Total time: %f\n", t2-t1, t11-t1, t12, t13, t14, t141, t142, t143, t15, t3-t2, t4-t3, t4-t1);
+               "      Total time: %f\n", t2-t1, t11-t1, t12, t13, t14, t141, t142, t143, t3-t2, t4-t3, t4-t1);
     }
 
     cxx_free_vector_f(sine);
